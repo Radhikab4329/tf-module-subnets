@@ -34,5 +34,29 @@ resource "aws_route" "internet_gw_route" {
   route_table_id            = aws_route_table.route_table.id
   destination_cidr_block    = "0.0.0.0/0"
   gateway_id                = var.internet_gw_id
+}
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main.id
+
+  tags       = merge (
+    local.common_tags,
+    { Name = "${var.env}-igw" }
+  )
+
+}
+
+resource "aws_eip" "ngw-eip" {
+  vpc      = true
+}
+
+resource "aws_nat_gateway" "ngw" {
+  allocation_id = aws_eip.ngw-eip.id
+  subnet_id     = var.public_subnet_ids[0]
+
+  tags       = merge (
+    local.common_tags,
+    { Name = "${var.env}-ngw" }
+  )
 
 }
