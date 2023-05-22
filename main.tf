@@ -37,7 +37,8 @@ resource "aws_route" "internet_gw_route" {
 }
 
 resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.main.id
+  count                     = var.internet_gw ? 1 : 0
+  vpc_id                    = var.vpc_id
 
   tags       = merge (
     local.common_tags,
@@ -51,6 +52,7 @@ resource "aws_eip" "ngw-eip" {
 }
 
 resource "aws_nat_gateway" "ngw" {
+  count         = var.internet_gw ? 1 : 0
   allocation_id = aws_eip.ngw-eip.id
   subnet_id     = var.public_subnet_ids[0]
 
